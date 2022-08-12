@@ -8,14 +8,12 @@ python-dotenv = "*"
 fastapi = "*"
 uvicorn = "*"
 pydantic = "*"
-alembic = "*"
 bcrypt = "*"
 email-validator = "*"
 python-multipart = "*"
-SQLAlchemy = "*"
-psycopg2 = "*"
 passlib = "*"
 pyjwt = "*"
+pymongo = "*"
 
 [dev-packages]
 
