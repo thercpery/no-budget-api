@@ -2,7 +2,7 @@ from fastapi import APIRouter, Body, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from typing import List
 
-from ..models.Product import ProductBase
+from ..models.Product import ProductBase, ProductUpdate
 from ..services import Products
 
 router = APIRouter()
@@ -50,4 +50,15 @@ async def shelf_or_resell_product(_id: str):
             detail="Product is not in our database or not in stock")
 
     return isProductShelvedOrResold
+
+
+@router.patch("/{_id}", response_description="Update product", response_model=ProductBase)
+async def update_product(_id: str, product_data: ProductUpdate = Body()):
+    isItemUpdated = await Products.update_product(_id=_id, product_data=product_data)
+    if not isItemUpdated:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product is not in our database or not in stock")
+
+    return isItemUpdated
 

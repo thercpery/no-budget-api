@@ -46,15 +46,11 @@ class ProductUpdate(BaseModel):
     class Config:
         schema_example = {
             "example": {
-                "id": "c02796fb-26b3-47dd-a0ee-75a56e54ca51",
                 "name": "Samsung Galaxy S5",
                 "description": "Old, but reliable",
                 "category": "",
                 "sku": "123456",
                 "quantity": 100,
-                "price": 1000.00,
-                "isAvailable": True,
-                "dateCreated": datetime.utcnow(),
-                "dateUpdated": datetime.utcnow()
+                "price": 1000.00
             }
         }
