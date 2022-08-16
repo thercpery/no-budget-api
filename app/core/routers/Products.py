@@ -43,22 +43,22 @@ async def get_products_by_keyword(keyword: str):
 
 @router.patch("/{_id}/shelforresell", response_description="Shelf or resell product")
 async def shelf_or_resell_product(_id: str):
-    isProductShelvedOrResold = await Products.shelf_or_resell_product(_id=_id)
-    if not isProductShelvedOrResold:
+    is_product_shelved_or_resold = await Products.shelf_or_resell_product(_id=_id)
+    if not is_product_shelved_or_resold:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Product is not in our database or not in stock")
 
-    return isProductShelvedOrResold
+    return is_product_shelved_or_resold
 
 
 @router.patch("/{_id}", response_description="Update product", response_model=ProductBase)
 async def update_product(_id: str, product_data: ProductUpdate = Body()):
-    isItemUpdated = await Products.update_product(_id=_id, product_data=product_data)
-    if not isItemUpdated:
+    is_item_updated = await Products.update_product(_id=_id, product_data=product_data)
+    if not is_item_updated:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Product is not in our database or not in stock")
 
-    return isItemUpdated
+    return is_item_updated
 

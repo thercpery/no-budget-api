@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from core.middlewares import database
-from core.routers import Products
+from core.routers import Products, Users
 
 app = FastAPI()
 
@@ -29,3 +29,4 @@ async def index():
     }
 
 app.include_router(Products.router, tags=["products"], prefix="/api/products")
+app.include_router(Users.router, tags=["users"], prefix="/api/users")
