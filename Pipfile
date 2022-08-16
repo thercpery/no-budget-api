@@ -13,8 +13,10 @@ email-validator = "*"
 python-multipart = "*"
 passlib = "*"
 pyjwt = "*"
-pymongo = "*"
-mongoengine = "*"
+psycopg2 = "*"
+psycopg2-binary = "*"
+SQLAlchemy = "*"
+alembic = "*"
 
 [dev-packages]
 

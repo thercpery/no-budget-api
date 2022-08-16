@@ -25,7 +25,8 @@ try:
     print("index for products added")
     db.create_collection("users")
     print("users collection added")
-    db.users.create_index([("username", TEXT), ("email", TEXT)])
+    db.users.create_index([("username", TEXT)])
+    db.users.create_index([("email", TEXT)])
     print("index for users added")
 
 except Exception as e:
