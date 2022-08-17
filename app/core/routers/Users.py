@@ -40,7 +40,7 @@ async def get_all_users(current_user: dict = Depends(Users.get_current_user)):
     if not current_user["isAdmin"]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="You are not logged in or not an admin")
+            detail="You are not authorized to access this endpoint. Please contact your administrator.")
 
     return await Users.get_all_users()
 

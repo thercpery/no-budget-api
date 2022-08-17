@@ -45,6 +45,7 @@ def check_email_if_valid(email: str) -> bool:
 async def create_token(user: dict):
     del user["password"]
     del user["orders"]
+    del user["cartItems"]
     del user["mobileNo"]
     del user["address"]
     del user["dateCreated"]

@@ -1,15 +1,24 @@
-from fastapi import APIRouter, Body, HTTPException, status
+from fastapi import APIRouter, Body, HTTPException, status, Depends
 from fastapi.encoders import jsonable_encoder
 from typing import List
 
 from ..models.Product import ProductBase, ProductUpdate
 from ..services import Products
+from ..services import Users
 
 router = APIRouter()
 
 
 @router.post("/", response_description="Add a new product")
-async def add_product(product_data: ProductBase = Body()):
+async def add_product(
+        current_user: dict = Depends(Users.get_current_user),
+        product_data: ProductBase = Body()):
+    if not current_user["isAdmin"]:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You are not authorized to access this endpoint. Please contact your administrator."
+        )
+
     product = jsonable_encoder(product_data)
     return await Products.add_products(product_data=product)
 
@@ -41,8 +50,16 @@ async def get_products_by_keyword(keyword: str):
     return products
 
 
-@router.patch("/{_id}/shelforresell", response_description="Shelf or resell product")
-async def shelf_or_resell_product(_id: str):
+@router.patch("/{_id}/shelf-or-resell", response_description="Shelf or resell product")
+async def shelf_or_resell_product(
+        _id: str,
+        current_user: dict = Depends(Users.get_current_user)):
+    if not current_user["isAdmin"]:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You are not authorized to access this endpoint. Please contact your administrator."
+        )
+
     is_product_shelved_or_resold = await Products.shelf_or_resell_product(_id=_id)
     if not is_product_shelved_or_resold:
         raise HTTPException(
@@ -53,7 +70,17 @@ async def shelf_or_resell_product(_id: str):
 
 
 @router.patch("/{_id}", response_description="Update product", response_model=ProductBase)
-async def update_product(_id: str, product_data: ProductUpdate = Body()):
+async def update_product(
+        _id: str,
+        product_data: ProductUpdate = Body(),
+        current_user: dict = Depends(Users.get_current_user)
+    ):
+    if not current_user["isAdmin"]:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You are not authorized on this endpoint. Please contact your administrator."
+        )
+
     is_item_updated = await Products.update_product(_id=_id, product_data=product_data)
     if not is_item_updated:
         raise HTTPException(
