@@ -21,13 +21,10 @@ db = client["no_budget"]
 try:
     db.create_collection("products")
     print("products collection added")
-    db.products.create_index([("name", TEXT)])
-    print("index for products added")
     db.create_collection("users")
     print("users collection added")
+    db.products.create_index(("name", TEXT))
     db.users.create_index([("username", TEXT), ("email", TEXT)])
-    print("index for users added")
-
 except Exception as e:
     if e == CollectionInvalid:
         pass
