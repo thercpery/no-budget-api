@@ -21,6 +21,11 @@ class UserBase(BaseModel):
         allow_population_by_field_name = True
 
 
+class LoginUser(BaseModel):
+    username: str = Field()
+    password: str = Field()
+
+
 class UserChangePassword(BaseModel):
     current_password: str = Field()
     new_password: str = Field()
