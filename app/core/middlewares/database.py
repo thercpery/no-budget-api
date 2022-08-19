@@ -25,6 +25,8 @@ try:
     print("users collection added")
     db.products.create_index(("name", TEXT))
     db.users.create_index([("username", TEXT), ("email", TEXT)])
+    db.create_collection("carts")
+    db.carts.create_index(("userId", TEXT))
 except Exception as e:
     if e == CollectionInvalid:
         pass
