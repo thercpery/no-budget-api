@@ -32,8 +32,17 @@ async def add_product_to_cart(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="You are not authorized to access this endpoint. Please contact your administrator.")
 
+    if product.quantity == 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Product quantity not allowed."
+        )
+
     product_id = product.product_id
-    is_product_added = await Carts.add_product_to_cart(product_id=product_id, user_id=current_user["_id"])
+    is_product_added = await Carts.add_product_to_cart(
+        product_id=product_id,
+        quantity=product.quantity,
+        user_id=current_user["_id"])
     if not is_product_added:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

@@ -8,10 +8,14 @@ carts_collection = database.carts_collection
 products_collection = database.products_collection
 
 
-async def search_from_cart_products_list(cart_products: list, product_id: str, product_price: float):
+async def search_from_cart_products_list(
+        cart_products: list,
+        product_id: str,
+        product_quantity: int,
+        product_price: float):
     for cart_product in cart_products:
         if cart_product["_id"] == product_id:
-            cart_product["quantity"] += 1
+            cart_product["quantity"] += product_quantity
             cart_product["price"] += product_price
             return cart_products
 
@@ -22,7 +26,7 @@ async def get_cart_from_user(user_id: str):
     return carts_collection.find_one({"userId": user_id})
 
 
-async def add_product_to_cart(product_id: str, user_id: str):
+async def add_product_to_cart(product_id: str, quantity: int, user_id: str):
     db_product = await Products.get_product_by_id(_id=product_id)
     if db_product is None or not db_product["isAvailable"]:
         return False
@@ -32,7 +36,8 @@ async def add_product_to_cart(product_id: str, user_id: str):
     del db_product["isAvailable"]
     del db_product["dateCreated"]
     del db_product["dateUpdated"]
-    db_product["quantity"] = 1
+    db_product["quantity"] = quantity
+    db_product["price"] = db_product["price"] * quantity
 
     db_cart = await get_cart_from_user(user_id=user_id)
 
@@ -51,6 +56,7 @@ async def add_product_to_cart(product_id: str, user_id: str):
         updated_products_data = await search_from_cart_products_list(
             cart_products=db_cart["products"],
             product_id=db_product["_id"],
+            product_quantity=quantity,
             product_price=db_product["price"]
         )
 

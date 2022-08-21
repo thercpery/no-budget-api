@@ -16,3 +16,4 @@ class CartItems(BaseModel):
 
 class AddToCart(BaseModel):
     product_id: str = Field()
+    quantity: int = Field()
