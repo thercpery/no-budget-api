@@ -35,6 +35,11 @@ async def login_user(user_data: LoginUser):
     return token
 
 
+@router.get("/me", response_description="Get current user", response_model=UserDisplay)
+async def get_current_user(current_user: dict = Depends(Users.get_current_user)):
+    return await Users.get_user_by_username(username=current_user["username"])
+
+
 @router.get("/", response_description="Get all users", response_model=List[UserDisplay])
 async def get_all_users(current_user: dict = Depends(Users.get_current_user)):
     if not current_user["isAdmin"]:

@@ -3,6 +3,7 @@ from typing import List
 
 from ..models.User import LoginUser, UserDisplay, UserGrantOrRevokeAdminAccess
 from ..models.Product import ProductBase, ProductUpdate
+from ..models.Order import Order
 from ..services import Users, Admin
 
 router = APIRouter()
@@ -63,7 +64,7 @@ async def add_product(
     pass
 
 
-@router.patch("/product/update/{_id}", response_description="Update products", response_model=ProductBase)
+@router.patch("/products/update/{_id}", response_description="Update products", response_model=ProductBase)
 async def update_product(
         _id: str,
         product_data: ProductUpdate = Body(),
@@ -76,7 +77,7 @@ async def update_product(
         )
 
 
-@router.patch("/product/shelf-or-resell/{_id}", response_description="Shelf or resell product")
+@router.patch("/products/shelf-or-resell/{_id}", response_description="Shelf or resell product")
 async def shelf_or_resell_product(
         _id: str,
         current_user: dict = Depends(Users.get_current_user)
@@ -87,3 +88,11 @@ async def shelf_or_resell_product(
             detail="You are not authorized to access this endpoint. Please contact your administrator."
         )
 
+
+@router.get("/orders", response_description="Get all orders", response_model=List[Order])
+async def get_all_orders(current_user: dict = Depends(Users.get_current_user)):
+    if not current_user["isAdmin"]:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You are not authorized to access this endpoint. Please contact your administrator."
+        )

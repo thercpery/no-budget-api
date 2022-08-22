@@ -19,5 +19,5 @@ class OrderOneProduct(BaseModel):
     quantity: int = Field()
 
 
-class OrderFromCart(BaseModel):
+class CheckoutFromCart(BaseModel):
     product_ids: List[str] = Field()
