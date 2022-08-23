@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Depends, Body
 
-from ..models.Cart import CartItems, AddToCart
+from ..models.Cart import CartItems, AddToCart, RemoveToCart
 from ..services import Carts
 from ..services import Users
 
@@ -50,3 +50,25 @@ async def add_product_to_cart(
         )
 
     return is_product_added
+
+
+@router.patch("/remove", response_description="Remove one item from cart")
+async def remove_items_from_cart(
+        current_user: dict = Depends(Users.get_current_user),
+        product_ids: RemoveToCart = Body()
+):
+    if current_user["isAdmin"]:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You are not authorized to access this endpoint. Please contact your administrator.")
+
+    is_item_removed = await Carts.remove_items_from_cart(product_ids=product_ids, user_id=current_user["_id"])
+
+    if not is_item_removed:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Your cart is empty. Please fill it up first"
+        )
+
+    return is_item_removed
+

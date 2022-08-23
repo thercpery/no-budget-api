@@ -87,7 +87,7 @@ async def order_now(
 
     new_order_data = await create_order(data=data, current_user=current_user)
 
-    current_time = new_order_data["dateCreated"]
+    order_created = new_order_data["dateCreated"]
 
     # Deduct product's quantity by the product_data.quantity
     db_product["quantity"] = db_product["quantity"] - product_data.quantity
@@ -97,7 +97,7 @@ async def order_now(
         db_product["isAvailable"] = False
 
     # Update product in the database
-    db_product["dateUpdated"] = current_time
+    db_product["dateUpdated"] = order_created
     products_collection.update_one({"_id": db_product["_id"]}, {"$set": db_product})
 
     # Return the newly-created order
@@ -122,6 +122,10 @@ async def checkout_from_cart(product_ids: List, username: str):
     # Get cart data that matches current user
     db_cart = await Carts.get_cart_from_user(user_id=current_user["_id"])
 
+    # If cart is empty return false
+    if db_cart is None:
+        return False
+
     # Store products from cart into db_product_from_cart that matches the given product ids
     for product_id in product_ids:
         for cart_product in db_cart["products"]:
@@ -133,7 +137,7 @@ async def checkout_from_cart(product_ids: List, username: str):
 
         # Store AVAILABLE matching products from db_all_products to db_matching_products
         for db_product in db_all_products:
-            if product_id == db_product["_id"] and db_product["isAvailable"]:
+            if product_id == db_product["_id"]:
                 db_matching_products.append(db_product)
 
     # If cart products is not equal to db_products return false
@@ -151,7 +155,7 @@ async def checkout_from_cart(product_ids: List, username: str):
     new_order_data = await create_order(data=data, current_user=current_user)
 
     # Get current time based on the time the order was created
-    current_time = new_order_data["dateCreated"]
+    order_created = new_order_data["dateCreated"]
 
     deduct_total_price = 0
     for product_id in product_ids:
@@ -170,7 +174,7 @@ async def checkout_from_cart(product_ids: List, username: str):
                             db_product["isAvailable"] = False
 
                         # Update products into the database
-                        db_product["dateUpdated"] = current_time
+                        db_product["dateUpdated"] = order_created
                         products_collection.update_one({"_id": db_product["_id"]}, {"$set": db_product})
 
                 # Remove selected item in the cart
@@ -180,7 +184,7 @@ async def checkout_from_cart(product_ids: List, username: str):
     db_cart["totalPrice"] -= deduct_total_price
 
     # Update user's cart
-    db_cart["dateUpdated"] = current_time
+    db_cart["dateUpdated"] = order_created
     carts_collection.update_one({"_id": db_cart["_id"]}, {"$set": db_cart})
 
     # Return newly-created order
@@ -188,4 +192,47 @@ async def checkout_from_cart(product_ids: List, username: str):
 
 
 async def checkout_all_items_in_cart(username: str):
-    pass
+    # Get current user data from db
+    current_user = await Users.get_user_by_username(username=username)
+
+    # Get cart data from db
+    db_cart = await Carts.get_cart_from_user(user_id=current_user["_id"])
+
+    if db_cart is None or db_cart["products"] is None:
+        return False
+
+    # Get all products
+    db_all_products = list(await Products.get_all_products_available())
+
+    # Gather the cart items and current user data and total price into the data variable
+    data = {
+        "userId": current_user["_id"],
+        "products": db_cart["products"],
+        "totalPrice": db_cart["totalPrice"]
+    }
+
+    # Get new order data
+    new_order_data = await create_order(data=data, current_user=current_user)
+
+    # Get time when the order is created
+    order_created = new_order_data["dateCreated"]
+
+    for order_product in new_order_data["products"]:
+        for db_product in db_all_products:
+            if order_product["_id"] == db_product["_id"]:
+                # Deduct product quantity
+                db_product["quantity"] -= order_product["quantity"]
+
+                # If db_products quantity reaches zero make db_products["isAvailable"] to zero
+                if db_product["quantity"] == 0:
+                    db_product["isAvailable"] = False
+
+                # Update products into the database
+                db_product["dateUpdated"] = order_created
+                products_collection.update_one({"_id": db_product["_id"]}, {"$set": db_product})
+
+    # Delete user cart
+    carts_collection.delete_one({"_id": db_cart["_id"]})
+
+    # Return newly-created order
+    return new_order_data

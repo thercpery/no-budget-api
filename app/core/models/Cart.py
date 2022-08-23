@@ -17,3 +17,7 @@ class CartItems(BaseModel):
 class AddToCart(BaseModel):
     product_id: str = Field()
     quantity: int = Field()
+
+
+class RemoveToCart(BaseModel):
+    product_ids: List[str] = Field()

@@ -1,7 +1,7 @@
 from fastapi.encoders import jsonable_encoder
 from datetime import datetime
 from ..middlewares import database
-from ..models.Cart import CartItems
+from ..models.Cart import CartItems, RemoveToCart
 from ..services import Products
 
 carts_collection = database.carts_collection
@@ -33,7 +33,6 @@ async def add_product_to_cart(product_id: str, quantity: int, user_id: str):
 
     del db_product["description"]
     del db_product["categories"]
-    del db_product["isAvailable"]
     del db_product["dateCreated"]
     del db_product["dateUpdated"]
     db_product["quantity"] = quantity
@@ -72,4 +71,47 @@ async def add_product_to_cart(product_id: str, quantity: int, user_id: str):
 
     display_cart = await get_cart_from_user(user_id=user_id)
     return display_cart
+
+
+async def remove_items_from_cart(
+        product_ids: RemoveToCart,
+        user_id: str
+):
+    # Get cart from db that matches the user ID given
+    db_cart = await get_cart_from_user(user_id=user_id)
+
+    # If db cart is empty, return false
+    if db_cart is None:
+        return False
+
+    db_cart_products_copy = db_cart["products"].copy()
+
+    for product_id in product_ids.product_ids:
+        for cart_product in db_cart["products"]:
+            if cart_product["_id"] == product_id:
+                # deduct total price
+                db_cart["totalPrice"] -= cart_product["price"]
+                # remove product from cart
+                db_cart["products"].remove(cart_product)
+
+    # If one of items is not in the cart
+    if len(db_cart_products_copy) == len(db_cart["products"]):
+        return {
+            "detail": "Your item is not in the cart"
+        }
+
+    # if cart products is empty, delete cart
+    if len(db_cart["products"]) == 0:
+        carts_collection.delete_one({"_id": db_cart["_id"]})
+        return {
+            "detail": "Your cart is empty."
+        }
+
+    # update cart if not
+    db_cart["dateUpdated"] = datetime.now()
+    carts_collection.update_one({"_id": db_cart["_id"]}, {"$set": db_cart})
+
+    # Return newly-updated cart
+    new_db_cart = await get_cart_from_user(user_id=user_id)
+    return new_db_cart
 
