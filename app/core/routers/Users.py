@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Body, HTTPException, status, Depends
 from fastapi.encoders import jsonable_encoder
-from typing import List
 
 from ..models.User import \
-    UserBase, UserChangePassword, LoginUser, UserDisplay, UserGrantOrRevokeAdminAccess, UserChangeUsername
+    UserBase, UserChangePassword, LoginUser, UserDisplay, UserChangeUsername
 from ..services import Users
 
 router = APIRouter()

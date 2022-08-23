@@ -1,13 +1,11 @@
 from fastapi import security
-from fastapi.encoders import jsonable_encoder
 from passlib.hash import bcrypt
 from dotenv import load_dotenv
 from datetime import datetime
-from typing import List
 import os
 
 from ..middlewares import database
-from ..models.User import UserDisplay, UserGrantOrRevokeAdminAccess, LoginUser
+from ..models.User import LoginUser
 from ..models.Product import ProductBase, ProductUpdate, RestockProduct
 from ..models.Order import Order
 from ..services import Users, Products

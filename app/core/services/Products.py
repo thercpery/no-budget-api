@@ -1,7 +1,6 @@
 from typing import List
-from datetime import datetime
 from ..middlewares import database
-from ..models.Product import ProductBase, ProductUpdate
+from ..models.Product import ProductBase
 
 products_collection = database.products_collection
 

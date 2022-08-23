@@ -1,9 +1,8 @@
-from fastapi import APIRouter, Body, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status
 from typing import List
 
-from ..models.Product import ProductBase, ProductUpdate
+from ..models.Product import ProductBase
 from ..services import Products
-from ..services import Users
 
 router = APIRouter()
 
