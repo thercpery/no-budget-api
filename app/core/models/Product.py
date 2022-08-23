@@ -54,3 +54,8 @@ class ProductUpdate(BaseModel):
                 "price": 1000.00
             }
         }
+
+
+class RestockProduct(BaseModel):
+    product_id: str = Field()
+    quantity: int = Field(default=100)

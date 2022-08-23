@@ -99,12 +99,6 @@ async def login_user(user_data: LoginUser):
     return await create_token(user=db_user)
 
 
-async def get_all_users():
-    users = list(users_collection.find({}, {"password": 0}))
-
-    return users
-
-
 async def is_password_changed(user: dict, new_password_data: UserChangePassword) -> bool:
     db_user = users_collection.find_one({"_id": user["_id"]})
     is_password_correct = bcrypt.verify(new_password_data.current_password, db_user["password"])
@@ -114,38 +108,6 @@ async def is_password_changed(user: dict, new_password_data: UserChangePassword)
 
     hashed_new_password = bcrypt.hash(new_password_data.new_password)
     db_user["password"] = hashed_new_password
-    db_user["dateUpdated"] = datetime.now()
-
-    users_collection.update_one({"_id": db_user["_id"]}, {"$set": db_user})
-    return True
-
-
-async def grant_admin_access(current_user: dict, username: str) -> bool:
-    db_user = await get_user_by_username(username)
-
-    if db_user is None:
-        return False
-
-    if db_user["username"] == current_user["username"]:
-        return False
-
-    db_user["isAdmin"] = True
-    db_user["dateUpdated"] = datetime.now()
-
-    users_collection.update_one({"_id": db_user["_id"]}, {"$set": db_user})
-    return True
-
-
-async def revoke_admin_access(current_user: dict, username: str) -> bool:
-    db_user = await get_user_by_username(username)
-
-    if db_user is None:
-        return False
-
-    if db_user["username"] == current_user["username"]:
-        return False
-
-    db_user["isAdmin"] = False
     db_user["dateUpdated"] = datetime.now()
 
     users_collection.update_one({"_id": db_user["_id"]}, {"$set": db_user})

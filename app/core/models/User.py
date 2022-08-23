@@ -14,7 +14,7 @@ class UserBase(BaseModel):
     address: str = StringField(required=True)
     isAdmin: bool = Field(default=False)
     orders: List[dict] = Field(default=[])
-    cartItems: List[dict] = Field(default=[])
+    isConfirmed: bool = Field(default=False)
     dateCreated: datetime = Field(default=datetime.utcnow())
     dateUpdated: datetime = Field(default=datetime.utcnow())
 
@@ -30,6 +30,7 @@ class UserDisplay(BaseModel):
     address: str = StringField(required=True)
     isAdmin: bool = Field(default=False)
     orders: List[dict] = Field(default=[])
+    isConfirmed: bool = Field(default=False)
     dateCreated: datetime = Field(default=datetime.utcnow())
     dateUpdated: datetime = Field(default=datetime.utcnow())
 
