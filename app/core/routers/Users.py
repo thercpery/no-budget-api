@@ -40,16 +40,6 @@ async def get_current_user(current_user: dict = Depends(Users.get_current_user))
     return await Users.get_user_by_username(username=current_user["username"])
 
 
-@router.get("/", response_description="Get all users", response_model=List[UserDisplay])
-async def get_all_users(current_user: dict = Depends(Users.get_current_user)):
-    if not current_user["isAdmin"]:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="You are not authorized to access this endpoint. Please contact your administrator.")
-
-    return await Users.get_all_users()
-
-
 @router.patch("/change-password", response_description="Change user's password")
 async def change_password(
         current_user: dict = Depends(Users.get_current_user),
@@ -63,48 +53,6 @@ async def change_password(
 
     return {
         "detail": "Changed password successfully. Please log in again."
-    }
-
-
-@router.patch("/grant-admin", response_description="Grant or revoke admin access to user")
-async def grant_admin_access(
-        current_user: dict = Depends(Users.get_current_user),
-        username: UserGrantOrRevokeAdminAccess = Body()):
-    if not current_user["isAdmin"]:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="You are not allowed")
-
-    is_user_granted = await Users.grant_admin_access(current_user=current_user, username=username.username)
-
-    if not is_user_granted:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="There is something wrong with your request. Try different credentials")
-
-    return {
-        "detail": f"{username.username} is now an admin."
-    }
-
-
-@router.patch("/revoke-admin", response_description="Grant or revoke admin access to user")
-async def revoke_admin_access(
-        current_user: dict = Depends(Users.get_current_user),
-        username: UserGrantOrRevokeAdminAccess = Body()):
-    if not current_user["isAdmin"]:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="You are not allowed")
-
-    is_user_granted = await Users.revoke_admin_access(current_user=current_user, username=username.username)
-
-    if not is_user_granted:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="There is something wrong with your request. Try different credentials")
-
-    return {
-        "detail": f"{username.username} has now his / her admin access revoked."
     }
 
 
