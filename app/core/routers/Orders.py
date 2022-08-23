@@ -37,3 +37,28 @@ async def order_now(
         )
 
     return is_order_created
+
+
+@router.post("/checkout/cart", response_description="Checkout select items from current user's cart")
+async def checkout_from_cart(
+        current_user: dict = Depends(Users.get_current_user),
+        product_ids: CheckoutFromCart = Body()
+):
+    if current_user["isAdmin"]:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You are not authorized to access this endpoint. Please contact your administrator."
+        )
+
+    is_order_created = await Orders.checkout_from_cart(
+        product_ids=product_ids.product_ids,
+        username=current_user["username"]
+    )
+
+    if not is_order_created:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="One of your cart items does not exist in our database or is not in the cart. Please try again."
+        )
+
+    return is_order_created
