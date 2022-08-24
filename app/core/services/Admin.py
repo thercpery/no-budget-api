@@ -6,8 +6,7 @@ import os
 
 from ..middlewares import database
 from ..models.User import LoginUser
-from ..models.Product import ProductBase, ProductUpdate, RestockProduct
-from ..models.Order import Order
+from ..models.Product import ProductUpdate, RestockProduct
 from ..services import Users, Products
 
 load_dotenv()
@@ -17,6 +16,7 @@ oauth2schema = security.OAuth2PasswordBearer("/api/admin/login")
 users_collection = database.users_collection
 products_collection = database.products_collection
 orders_collection = database.orders_collection
+carts_collection = database.carts_collection
 
 
 async def login_user(user_data: LoginUser):
@@ -92,7 +92,7 @@ async def update_product(_id: str, product_data: ProductUpdate):
     product["sku"] = product_data.sku
     product["quantity"] = product_data.quantity
     product["price"] = product_data.price
-    product["dateUpdated"] = datetime.now()
+    product["dateUpdated"] = datetime.utcnow()
 
     products_collection.update_one({"_id": _id}, {"$set": product})
     return await Products.get_product_by_id(_id=_id)
@@ -104,8 +104,17 @@ async def shelf_or_resell_product(_id: str):
         return False
 
     product["isAvailable"] = not product["isAvailable"]
-    product["dateUpdated"] = datetime.now()
+    product["dateUpdated"] = datetime.utcnow()
     products_collection.update_one({"_id": _id}, {"$set": product})
+
+    db_carts = list(carts_collection.find({"products._id": _id}))
+    for db_cart in db_carts:
+        for cart_product in db_cart["products"]:
+            if cart_product["_id"] == _id:
+                cart_product["isAvailable"] = product["isAvailable"]
+                db_cart["dateUpdated"] = product["dateUpdated"]
+                carts_collection.update_one({"_id": db_cart["_id"]}, {"$set": db_cart})
+
     return await Products.get_product_by_id(_id=_id)
 
 

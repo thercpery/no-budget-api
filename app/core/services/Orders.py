@@ -116,9 +116,6 @@ async def checkout_from_cart(product_ids: List, username: str):
 
     total_price = 0
 
-    # Get all available products and put them in a list
-    # db_all_products = list(await Products.get_all_products_available())
-
     # Get cart data that matches current user
     db_cart = await Carts.get_cart_from_user(user_id=current_user["_id"])
 
@@ -179,12 +176,17 @@ async def checkout_from_cart(product_ids: List, username: str):
                 # Remove selected item in the cart
                 db_cart["products"].remove(cart_product)
 
-    # Deduct total price
-    db_cart["totalPrice"] -= deduct_total_price
+    # If cart products is empty, delete cart
+    if len(db_cart["products"]) == 0:
+        carts_collection.delete_one({"_id": db_cart["_id"]})
 
-    # Update user's cart
-    db_cart["dateUpdated"] = order_created
-    carts_collection.update_one({"_id": db_cart["_id"]}, {"$set": db_cart})
+    else:
+        # Deduct total price
+        db_cart["totalPrice"] -= deduct_total_price
+
+        # Update user's cart
+        db_cart["dateUpdated"] = order_created
+        carts_collection.update_one({"_id": db_cart["_id"]}, {"$set": db_cart})
 
     # Return newly-created order
     return new_order_data
