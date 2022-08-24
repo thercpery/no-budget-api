@@ -24,7 +24,7 @@ def create_products_collection(db: database):
         db.create_collection("products")
         print("products collection added")
     except Exception as e:
-        if e == CollectionInvalid:
+        if type(e) == CollectionInvalid:
             pass
         else:
             print(e)
@@ -35,7 +35,7 @@ def create_users_collection(db: database):
         db.create_collection("users")
         print("users collection added")
     except Exception as e:
-        if e == CollectionInvalid:
+        if type(e) == CollectionInvalid:
             pass
         else:
             print(e)
@@ -46,7 +46,7 @@ def create_carts_collection(db: database):
         db.create_collection("carts")
         print("carts collection added")
     except Exception as e:
-        if e == CollectionInvalid:
+        if type(e) == CollectionInvalid:
             pass
         else:
             print(e)
@@ -57,7 +57,7 @@ def create_orders_collection(db: database):
         db.create_collection("orders")
         print("orders collection added")
     except Exception as e:
-        if e == CollectionInvalid:
+        if type(e) == CollectionInvalid:
             pass
         else:
             print(e)
