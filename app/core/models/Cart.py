@@ -10,8 +10,8 @@ class CartItems(BaseModel):
     userId: str = StringField()
     products: List[dict] = Field(default=[])
     totalPrice: float = FloatField()
-    dateCreated: datetime = Field(default=datetime.now())
-    dateUpdated: datetime = Field(default=datetime.now())
+    dateCreated: datetime = Field(default=datetime.utcnow())
+    dateUpdated: datetime = Field(default=datetime.utcnow())
 
 
 class AddToCart(BaseModel):

@@ -117,7 +117,7 @@ async def checkout_from_cart(product_ids: List, username: str):
     total_price = 0
 
     # Get all available products and put them in a list
-    db_all_products = list(await Products.get_all_products_available())
+    # db_all_products = list(await Products.get_all_products_available())
 
     # Get cart data that matches current user
     db_cart = await Carts.get_cart_from_user(user_id=current_user["_id"])
@@ -129,19 +129,18 @@ async def checkout_from_cart(product_ids: List, username: str):
     # Store products from cart into db_product_from_cart that matches the given product ids
     for product_id in product_ids:
         for cart_product in db_cart["products"]:
-            if product_id == cart_product["_id"]:
+            if product_id == cart_product["_id"] and cart_product["isAvailable"]:
                 db_cart_products.append(cart_product)
 
                 # Compute total price
                 total_price += cart_product["price"]
 
-        # Store AVAILABLE matching products from db_all_products to db_matching_products
-        for db_product in db_all_products:
-            if product_id == db_product["_id"]:
+                # Store AVAILABLE matching products from products db to db_matching_products
+                db_product = await Products.get_product_by_id(_id=product_id)
                 db_matching_products.append(db_product)
 
     # If cart products is not equal to db_products return false
-    if len(db_cart_products) != len(db_matching_products):
+    if len(product_ids) > len(db_cart_products):
         return False
 
     # Gather the cart items and current user data and total price into the data variable
@@ -165,7 +164,7 @@ async def checkout_from_cart(product_ids: List, username: str):
                 deduct_total_price += cart_product["price"]
 
                 # Deduct products quantity
-                for db_product in db_all_products:
+                for db_product in db_matching_products:
                     if db_product["_id"] == cart_product["_id"]:
                         db_product["quantity"] -= cart_product["quantity"]
 
