@@ -46,7 +46,7 @@ async def add_product_to_cart(
     if not is_product_added:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Product is not found in the database."
+            detail="Product is not found in the database or is not in stock."
         )
 
     return is_product_added
