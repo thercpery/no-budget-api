@@ -1,4 +1,9 @@
+from dotenv import load_dotenv
+import os
 from ..middlewares import mailjet
+
+load_dotenv()
+SENDER_EMAIL = os.environ.get("SENDER_EMAIL")
 
 
 async def send_email(message_data: dict):
@@ -6,7 +11,7 @@ async def send_email(message_data: dict):
         "Messages": [
             {
                 "From": {
-                    "Email": "sarsicoola@gmail.com",
+                    "Email": SENDER_EMAIL,
                     "Name": "No Budget Shop"
                 },
                 "To": message_data["to"],
