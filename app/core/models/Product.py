@@ -14,8 +14,8 @@ class ProductBase(BaseModel):
     quantity: int = IntField(required=True)
     price: float = FloatField(required=True)
     isAvailable: bool = Field(default=True)
-    dateCreated: datetime = Field(default=datetime.utcnow())
-    dateUpdated: datetime = Field(default=datetime.utcnow())
+    dateCreated: datetime = Field(default=datetime.now())
+    dateUpdated: datetime = Field(default=datetime.now())
 
     class Config:
         allow_population_by_field_name = True

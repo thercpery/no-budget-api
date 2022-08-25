@@ -15,8 +15,8 @@ class UserBase(BaseModel):
     isAdmin: bool = Field(default=False)
     orders: List[dict] = Field(default=[])
     isConfirmed: bool = Field(default=False)
-    dateCreated: datetime = Field(default=datetime.utcnow())
-    dateUpdated: datetime = Field(default=datetime.utcnow())
+    dateCreated: datetime = Field(default=datetime.now())
+    dateUpdated: datetime = Field(default=datetime.now())
 
     class Config:
         allow_population_by_field_name = True
@@ -31,8 +31,8 @@ class UserDisplay(BaseModel):
     isAdmin: bool = Field(default=False)
     orders: List[dict] = Field(default=[])
     isConfirmed: bool = Field(default=False)
-    dateCreated: datetime = Field(default=datetime.utcnow())
-    dateUpdated: datetime = Field(default=datetime.utcnow())
+    dateCreated: datetime = Field(default=datetime.now())
+    dateUpdated: datetime = Field(default=datetime.now())
 
 
 class LoginUser(BaseModel):

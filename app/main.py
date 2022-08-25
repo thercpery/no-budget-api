@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from .core.middlewares import database
-from .core.routers import Products, Users, Carts, Orders, Admin
+from .core.routers import Products, Users, Carts, Orders, Admin, Confirmations
 
 app = FastAPI()
 
@@ -33,3 +33,4 @@ app.include_router(Users.router, tags=["users"], prefix="/api/users")
 app.include_router(Carts.router, tags=["carts"], prefix="/api/cart")
 app.include_router(Orders.router, tags=["orders"], prefix="/api/orders")
 app.include_router(Admin.router, tags=["admin"], prefix="/api/admin")
+app.include_router(Confirmations.router, tags=["confirmation"], prefix="/api/confirm")
