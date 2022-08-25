@@ -8,6 +8,7 @@ import os
 
 from ..middlewares import database
 from ..models.User import LoginUser, UserChangePassword
+from . import Confirmations
 
 load_dotenv()
 JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
@@ -81,6 +82,8 @@ async def register_user(user_data: dict):
     new_user = users_collection.insert_one(user_data)
     user_obj = users_collection.find_one({"_id": new_user.inserted_id})
     del user_obj["password"]
+
+    await Confirmations.send_confirmation_email(user_obj=user_obj)
 
     return user_obj
 

@@ -76,3 +76,4 @@ products_collection = db.products
 users_collection = db.users
 carts_collection = db.carts
 orders_collection = db.orders
+confirmations_collection = db.confirmations
