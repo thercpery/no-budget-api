@@ -15,6 +15,7 @@ passlib = "*"
 pyjwt = "*"
 pymongo = "*"
 mongoengine = "*"
+gunicorn = "*"
 mailjet-rest = "*"
 
 [dev-packages]
