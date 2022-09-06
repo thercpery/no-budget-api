@@ -83,9 +83,15 @@ async def register_user(user_data: dict):
     user_obj = users_collection.find_one({"_id": new_user.inserted_id})
     del user_obj["password"]
 
-    await Confirmations.send_confirmation_email(user_obj=user_obj)
+    email_status_code = await Confirmations.send_confirmation_email(user_obj=user_obj)
+    if email_status_code >= 400:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="There is something wrong while registering your account. Don't worry, we're on it.")
 
-    return user_obj
+    return {
+        "detail": "We have sent you a email to confirm your account."
+    }
 
 
 async def login_user(user_data: LoginUser):

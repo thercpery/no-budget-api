@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, HTTPException, status
 from ..services import Confirmations
 
 router = APIRouter()
@@ -11,7 +11,7 @@ async def confirm_user(_id: str):
     if not is_user_confirmed:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="The confirmation link has been expired or does not exist.")
+            detail="There is something wrong with your confirmation. Please check your inbox again.")
 
     return {
         "detail": "Successfully confirmed!"
