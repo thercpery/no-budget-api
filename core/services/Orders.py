@@ -2,12 +2,75 @@ from fastapi.encoders import jsonable_encoder
 from typing import List
 from ..middlewares import database
 from ..models.Order import OrderOneProduct, Order
-from ..services import Users, Products, Carts
+from ..services import Users, Products, Carts, Email
 
 orders_collection = database.orders_collection
 carts_collection = database.carts_collection
 users_collection = database.users_collection
 products_collection = database.products_collection
+
+
+def setup_multiple_orders_string(product_data: list):
+    products_string = """<ul>"""
+    for product in product_data:
+        products_string = products_string + f"""<li>{product['name']} - Php. {product['price']}</li>"""
+
+    products_string = products_string + """</ul>"""
+    return products_string
+
+
+async def order_send_email(user_data: dict, order_data: dict):
+    if len(order_data["products"]) == 1:
+        message_data = {
+            "to": [
+                {
+                    "Email": user_data["email"],
+                    "Name": user_data["username"]
+                }
+            ],
+            "subject": "Order confirmation",
+            "TextPart": "Greetings! Your order is successful!",
+            "HTMLPart": f"""<h3>Hi, {user_data['username']}!</h3>
+        <br>
+        <p>Thank you for shopping with us!</p>
+        <br>
+        <p>We confirm that you have ordered the following items with the order number of {order_data["_id"]}:</p>
+        <ul>
+            <li>{order_data["products"][0]["name"]} - Php. {order_data["products"][0]["price"]}</li>
+        </ul>
+        <p>Thank you for shopping with us!</p>
+                """
+        }
+
+    else:
+        products_string = setup_multiple_orders_string(product_data=order_data["products"])
+
+        message_data = {
+            "to": [
+                {
+                    "Email": user_data["email"],
+                    "Name": user_data["username"]
+                }
+            ],
+            "subject": "Order confirmation",
+            "TextPart": "Greetings! Your order is successful!",
+            "HTMLPart": f"""<h3>Hi, {user_data['username']}!</h3>
+                <br>
+                <p>Thank you for shopping with us!</p>
+                <br>
+                <p>We confirm that you have ordered the following items with the order number of {order_data["_id"]}:</p>
+                {products_string}
+                <p>Thank you for shopping with us!</p>
+                        """
+        }
+
+    await Email.send_email(message_data=message_data)
+
+
+async def get_orders_from_user(user_id: str):
+    return list(orders_collection.find({"userId": user_id}))
+
+
 
 
 async def create_order(data: dict, current_user: dict):
@@ -35,10 +98,6 @@ async def create_order(data: dict, current_user: dict):
 
     # Return newly-created order
     return new_order_obj
-
-
-async def get_orders_from_user(user_id: str):
-    return list(orders_collection.find({"userId": user_id}))
 
 
 async def order_now(
@@ -99,6 +158,9 @@ async def order_now(
     # Update product in the database
     db_product["dateUpdated"] = order_created
     products_collection.update_one({"_id": db_product["_id"]}, {"$set": db_product})
+
+    # Send email confirmation
+    await order_send_email(user_data=current_user, order_data=new_order_data)
 
     # Return the newly-created order
     return new_order_data
@@ -188,6 +250,9 @@ async def checkout_from_cart(product_ids: List, username: str):
         db_cart["dateUpdated"] = order_created
         carts_collection.update_one({"_id": db_cart["_id"]}, {"$set": db_cart})
 
+    # Send email confirmation
+    await order_send_email(user_data=current_user, order_data=new_order_data)
+
     # Return newly-created order
     return new_order_data
 
@@ -234,6 +299,9 @@ async def checkout_all_items_in_cart(username: str):
 
     # Delete user cart
     carts_collection.delete_one({"_id": db_cart["_id"]})
+
+    # Send email confirmation
+    await order_send_email(user_data=current_user, order_data=new_order_data)
 
     # Return newly-created order
     return new_order_data

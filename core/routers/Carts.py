@@ -8,8 +8,7 @@ router = APIRouter()
 
 
 @router.get("/",
-            response_description="Get cart items from current user",
-            response_model=CartItems)
+            response_description="Get cart items from current user")
 async def get_cart_from_user(current_user: dict = Depends(Users.get_current_user)):
     if current_user["isAdmin"]:
         raise HTTPException(
