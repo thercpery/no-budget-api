@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from .core.middlewares import database
-from .core.routers import Products, Users, Carts, Orders, Admin, Confirmations
+from core.middlewares import database
+from core.routers import Products, Users, Carts, Orders, Admin, Confirmations
 
 app = FastAPI()
 
